@@ -1,0 +1,67 @@
+from langchain_mistralai import ChatMistralAI
+import re
+import os
+
+def llm_relevance_score(query, item):
+    """
+    Compute the relevance score of an item to the query using a language model.
+
+    Args:
+        query (str): The input query for which to compute the relevance score.
+        item: The item for which to compute the relevance score.
+    Returns:
+        Relevance score of the item to the query.
+    """
+    
+    # Use explicit API key to avoid 'Bearer ' header issues
+    api_key = os.environ.get("MISTRAL_API_KEY") or "uFyz6AUCYQ6F9GMWNaHLRoXGP8TLbqhJ"
+    
+    try:
+        llm = ChatMistralAI(model="mistral-small-latest", mistral_api_key=api_key)
+        
+        prompt = f"Assign a relevance score to item based on its relevance to the query both the query and the item are delimited by triple backticks.\nQuery: ```{query}```\nItem: ```{item.page_content}``` \nRelevance Score (0-1):"
+        
+        response = llm.invoke(prompt)
+        content = response.content.strip()
+        
+        # Flexible parsing of the response to extract the relevance score
+        relevance_score = 0.0
+        try:
+            relevance_score = float(content)
+        except ValueError:
+            # If the response is not a valid float, try to extract the score from the text
+            match = re.search(r'(\d+(\.\d+)?)', content)
+            if match:
+                relevance_score = float(match.group(1))
+        return relevance_score
+    except Exception:
+        return 0.0
+
+def keyword_relevance_score(query, item):
+    """
+    Compute the relevance score of an item to the query based on keyword matching.
+
+    Args:
+        query (str): The input query for which to compute the relevance score.
+        item: The item for which to compute the relevance score.
+    Returns:
+        Relevance score of the item to the query based on keyword matching.
+    """
+    query_keywords = set(query.lower().split())
+    item_keywords = set(item.page_content.lower().split())
+    common_keywords = query_keywords.intersection(item_keywords)
+    relevance_score = len(common_keywords) / len(query_keywords) if query_keywords else 0.0
+    return relevance_score
+
+def rerank(query, retrieved_items, compute_relevance_score=llm_relevance_score):
+    """
+    Rerank the retrieved items based on their relevance to the query using a language model.
+
+    Args:
+        query (str): The input query for which to rerank the retrieved items.
+        retrieved_items (list): The list of items retrieved from the initial retrieval step.
+    Returns:
+        List of the reranked items based on their relevance to the query.
+    """
+    reranked_items = sorted(retrieved_items, key=lambda item: compute_relevance_score(query, item), reverse=True)
+    return reranked_items
