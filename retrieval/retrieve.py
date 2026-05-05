@@ -12,6 +12,6 @@ def retrieve_by_similarity(query, path=None, top_k=5):
         List of the top_k most similar items in the vector store.
     """
     vector_store = load_index(path)
-    results = vector_store.similarity_search(query, k=top_k)
+    results = vector_store.similarity_search_with_score(query, k=top_k)
     return results
 

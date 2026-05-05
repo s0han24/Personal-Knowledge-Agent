@@ -4,9 +4,6 @@ import sys
 # Add the current directory to sys.path to ensure local imports work
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Set Mistral API Key globally
-os.environ["MISTRAL_API_KEY"] = "uFyz6AUCYQ6F9GMWNaHLRoXGP8TLbqhJ"
-
 from config import data_path, vector_store_path
 from ingestion.loaders import load_dir
 from ingestion.parsers import parse_dir

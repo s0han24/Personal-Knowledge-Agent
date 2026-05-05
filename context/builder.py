@@ -1,4 +1,4 @@
-def build_context(query, chunks):
+def build_context(chunks):
     """
     Builds the context from the documents
     

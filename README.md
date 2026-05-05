@@ -1,10 +1,10 @@
 # Personal Knowledge Agent
 
-A terminal-based AI assistant that uses Retrieval-Augmented Generation (RAG) to answer questions based on your local documents.
+A premium AI assistant that uses Retrieval-Augmented Generation (RAG) to answer questions based on your local documents. Powered by **Mistral AI** and built with **Streamlit**.
 
 ## 🌟 Features
 
-- **TUI Interface**: A modern, responsive terminal user interface with color-coded chat logs and interactive input.
+- **Streamlit Interface**: A modern, web-based chat interface with native support for **LaTeX math**, syntax-highlighted code, and smooth scrolling.
 - **Mistral AI Integration**: Leverages Mistral for state-of-the-art embeddings, relevance-based reranking, and high-quality response generation.
 - **Robust RAG Pipeline**:
   - **Ingestion**: Supports PDF, TXT, Markdown, and various code formats.
@@ -22,7 +22,7 @@ The project is organized into modular components:
 - **`embedding/`**: Integration with Mistral's embedding models.
 - **`index/`**: FAISS vector store management (build, save, load).
 - **`retrieval/`**: Multi-stage retrieval process including similarity search and LLM reranking.
-- **`main.py`**: The heart of the application—a Textual-based chat interface.
+- **`app.py`**: The main application—a Streamlit-based web interface.
 - **`ingest_data.py`**: A CLI tool for batch processing raw data into the vector store.
 
 ## 🚀 Getting Started
@@ -31,31 +31,38 @@ The project is organized into modular components:
 
 Ensure you have Python installed and the necessary libraries:
 ```bash
-pip install textual langchain langchain-mistralai faiss-cpu pypdf
+pip install streamlit langchain langchain-mistralai faiss-cpu pypdf
 ```
 
 ### Configuration
 
-The project is configured to use Mistral AI. The API key is managed within `main.py` and `ingest_data.py`, or can be set via environment variables.
+The project requires a **Mistral AI API key**. Set it as an environment variable:
+
+**Mac/Linux:**
+```bash
+export MISTRAL_API_KEY="your-mistral-api-key"
+```
+
+**Windows (Command Prompt):**
+```cmd
+set MISTRAL_API_KEY=your-mistral-api-key
+```
 
 ### 1. Ingest Data
-Place your raw documents (PDFs, text files, etc.) in the `raw/` directory, then run:
+Place your raw documents in the `raw/` directory, then run:
 ```bash
 python ingest_data.py
 ```
-This will build the FAISS index and save it to `index/vector_store`.
 
 ### 2. Run the Agent
-Launch the terminal UI to start chatting with your knowledge base:
+Launch the web UI to start chatting with your knowledge base:
 ```bash
-python main.py
+streamlit run app.py
 ```
 
-## ⌨️ TUI Shortcuts
+## 📝 License
 
-- `Ctrl + C`: Quit the application.
-- `Ctrl + L`: Clear the chat history.
-- `Enter`: Submit your query.
+MIT
 
 ## 📝 License
 

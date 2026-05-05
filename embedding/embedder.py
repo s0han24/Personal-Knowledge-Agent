@@ -5,8 +5,10 @@ def get_embeddings_obj():
     """
     Returns the embedding object, initializing it if necessary.
     """
-    api_key = os.environ.get("MISTRAL_API_KEY") or "uFyz6AUCYQ6F9GMWNaHLRoXGP8TLbqhJ"
-    return MistralAIEmbeddings(model="mistral-embed", mistral_api_key=api_key)
+    MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
+    if not MISTRAL_API_KEY:
+        raise ValueError("MISTRAL_API_KEY environment variable is not set.")
+    return MistralAIEmbeddings(model="mistral-embed", mistral_api_key=MISTRAL_API_KEY)
 
 def get_embeddings(docs):
     """

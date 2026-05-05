@@ -12,12 +12,12 @@ def llm_relevance_score(query, item):
     Returns:
         Relevance score of the item to the query.
     """
-    
-    # Use explicit API key to avoid 'Bearer ' header issues
-    api_key = os.environ.get("MISTRAL_API_KEY") or "uFyz6AUCYQ6F9GMWNaHLRoXGP8TLbqhJ"
+    MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
+    if not MISTRAL_API_KEY:
+        raise ValueError("MISTRAL_API_KEY environment variable is not set.")
     
     try:
-        llm = ChatMistralAI(model="mistral-small-latest", mistral_api_key=api_key)
+        llm = ChatMistralAI(model="mistral-small-latest", mistral_api_key=MISTRAL_API_KEY)
         
         prompt = f"Assign a relevance score to item based on its relevance to the query both the query and the item are delimited by triple backticks.\nQuery: ```{query}```\nItem: ```{item.page_content}``` \nRelevance Score (0-1):"
         
@@ -53,7 +53,7 @@ def keyword_relevance_score(query, item):
     relevance_score = len(common_keywords) / len(query_keywords) if query_keywords else 0.0
     return relevance_score
 
-def rerank(query, retrieved_items, compute_relevance_score=llm_relevance_score):
+def rerank(query, retrieved_items, compute_relevance_score=keyword_relevance_score):
     """
     Rerank the retrieved items based on their relevance to the query using a language model.
 
@@ -63,5 +63,6 @@ def rerank(query, retrieved_items, compute_relevance_score=llm_relevance_score):
     Returns:
         List of the reranked items based on their relevance to the query.
     """
-    reranked_items = sorted(retrieved_items, key=lambda item: compute_relevance_score(query, item), reverse=True)
+    scored_items = [(item, compute_relevance_score(query, item)) for item in retrieved_items]
+    reranked_items = sorted(scored_items, key=lambda x: x[1], reverse=True)
     return reranked_items
