@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from config import data_path, vector_store_path
 from ingestion.loaders import load_dir
 from ingestion.parsers import parse_dir
-from chunking.naive import chunk_docs
+from chunking.caller import chunk_documents
 from index.faiss_index import build_index, save_index, add_docs
 
 def main():
@@ -34,7 +34,7 @@ def main():
     # 3. Chunk documents
     print("Chunking documents...")
     try:
-        chunks = chunk_docs(parsed_documents)
+        chunks = chunk_documents(parsed_documents)
         print(f"Created {len(chunks)} chunks.")
     except Exception as e:
         print(f"Error chunking documents: {e}")

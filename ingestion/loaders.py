@@ -13,23 +13,15 @@ def load_file(path):
     """
     file_extension = path.split('/')[-1].split('.')[-1]
     
-    if file_extension == 'txt':
-        return load_text(path)
-    elif file_extension == 'pdf':
-        return load_pdf(path)
-    elif file_extension == 'md':
-        docs = load_text(path)
-        for doc in docs:
-            doc.metadata['type'] = 'markdown'
+    if file_extension == 'pdf':
+        docs = load_pdf(path, file_extension)
         return docs
     else:
-        # Assume the file is a code snippet and load it as a text file
-        docs = load_text(path)
-        for doc in docs:
-            doc.metadata['type'] = 'code'
+        # For simplicity, we treat all non-pdf files as text files. In a real implementation, we would want to handle different file types more robustly.
+        docs = load_text(path, file_extension)
         return docs
 
-def load_text(path):
+def load_text(path, file_extension):
     """
     Loads a text file
     
@@ -40,9 +32,14 @@ def load_text(path):
         List of Document objects
     """
     loader = TextLoader(path)
-    return loader.load()
+    docs = loader.load()
+    doctype = 'text' if file_extension == 'txt' else 'code'
+    for doc in docs:
+        doc.metadata['type'] = doctype
+        doc.metadata['file_extension'] = file_extension
+    return docs
 
-def load_pdf(path):
+def load_pdf(path, file_extension):
     """
     Loads a PDF file (digital ones only)
     
@@ -53,7 +50,11 @@ def load_pdf(path):
         List of Document objects
     """
     loader = PyPDFLoader(path)
-    return loader.load()
+    docs = loader.load()
+    for doc in docs:
+        doc.metadata['type'] = 'pdf'
+        doc.metadata['file_extension'] = file_extension
+    return docs
 
 def load_dir(path):
     """
