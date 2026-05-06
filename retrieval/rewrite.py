@@ -2,14 +2,24 @@ import os
 from langchain_mistralai import ChatMistralAI
 import re
 
-def polish_query(query):
+_MISTRAL_LLM = None
+
+def get_mistral_llm(model="mistral-medium-latest"):
+    global _MISTRAL_LLM
+    # Note: If we need different models, we might need a dict cache, 
+    # but for now we'll just cache the one used.
+    if _MISTRAL_LLM is None:
+        _MISTRAL_LLM = ChatMistralAI(model=model, mistral_api_key=os.environ.get("MISTRAL_API_KEY"))
+    return _MISTRAL_LLM
+
+def polish_query(query, context=""):
     """
     Rewrite the query to be optimized for semantic similarity search.
     """
     instructions = f"""
 You are an AI expert in knowledge management and semantic search.
 
-Your task is to analyze the user's query and rewrite it to be optimized for semantic similarity search.
+Your task is to analyze the user's query given the context and rewrite it to be optimized for semantic similarity search.
 
 CRITICAL INSTRUCTIONS:
 1. **Expansion**: If the query is short (1-3 words), expand it into a full, detailed question. Add context, entities, and relationships.
@@ -28,11 +38,13 @@ CRITICAL INSTRUCTIONS:
 ```"Thinking Process: <your thinking process>"```
 "Rewritten Query: <your rewritten query>"
 
+Context: {context}
+
 User Query: {query}
 
 Response:
 """
-    llm = ChatMistralAI(model="mistral-medium-latest", mistral_api_key=os.environ.get("MISTRAL_API_KEY"))
+    llm = get_mistral_llm(model="mistral-medium-latest")
     response = llm.invoke(instructions.format(query=query))
     content = response.content.strip()  
     # first remove the thinking process
@@ -70,3 +82,39 @@ Response:
 5. Think step by step
    """
     return content
+
+
+def rewrite_query_only(query, context=""):
+    """
+    Rewrite the query for semantic search, returning ONLY the rewritten query text.
+    
+    Unlike polish_query() which returns a full LLM prompt template,
+    this returns just the rewritten query string — suitable for passing
+    directly to FAISS similarity search.
+    
+    Args:
+        query: The original user query
+    
+    Returns:
+        The rewritten query string
+    """
+    instructions = f"""You are an AI expert in knowledge management and semantic search.
+
+Your task is to analyze the user's query and rewrite it to be optimized for semantic similarity search.
+
+CRITICAL INSTRUCTIONS:
+1. If the query is short, expand it into a full, detailed question.
+2. Convert keyword-format queries into natural language questions.
+3. Add details that would help retrieve more relevant documents.
+4. Do NOT add new factual information or change the intent of the query.
+5. Return ONLY the rewritten query, nothing else. No preamble, no explanation.
+
+User Query: {query}
+
+Rewritten Query:"""
+    llm = get_mistral_llm(model="mistral-medium-latest")
+    response = llm.invoke(instructions)
+    rewritten = response.content.strip()
+    # Remove any accidental quotes
+    rewritten = rewritten.strip('"').strip("'")
+    return rewritten

@@ -6,7 +6,9 @@ from langchain_core.documents import Document
 mistral_ai = ChatMistralAI(model="mistral-large-latest")
 
 
-# Hits rate limit for Mistral, so just a proof of concept for now. We can implement a more robust solution later that handles rate limits and retries.
+# Hits rate limit for Mistral, so just a proof of concept for now. I need to find a workaround for this, viable retrieval strategies include:
+# 1. Using windowed retrieval: Retrieve a chunk before and after the current chunk to provide additional context without needing to summarize the entire document.
+# 2. Parent-Document Retrieval: Make small child chunks and larger parent chunks; search the Child chunks to find the exact location, but retrieve the Parent chunk to send to the LLM.
 def perform_ai_driven_chunking(document, chunk_size=500, chunk_overlap=50):
     """
     Chunks the document into smaller chunks using an AI-driven approach

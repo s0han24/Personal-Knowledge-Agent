@@ -18,6 +18,10 @@ try:
 except ImportError:
     ChatMistralAI = None
 
+import logging
+logging.getLogger("transformers").setLevel(logging.ERROR)
+
+
 # --- Configuration ---
 st.set_page_config(
     page_title="Personal Knowledge Agent",
@@ -150,7 +154,8 @@ if prompt := st.chat_input("Ask me anything about your knowledge base..."):
                 try:
                     # 1. Rewrite Query
                     st.write("Optimizing query for search...")
-                    polished_query = polish_query(prompt)
+                    context = "\n".join([f"{msg['role']}: {msg['content']}" for msg in st.session_state.messages])
+                    polished_query = polish_query(prompt, context)
 
                     # 2. Retrieve
                     st.write("Retrieving relevant documents...")
@@ -174,7 +179,7 @@ if prompt := st.chat_input("Ask me anything about your knowledge base..."):
                         
                         # 4. Generate Answer
                         st.write("Generating answer...")
-                        llm_prompt = f"Context:\n{context}\n\nQuestion: {prompt}\n\nAnswer the question based strictly on the context provided. If the answer is not in the context, say you don't know."
+                        llm_prompt = f"Context:\n{context}\n\nQuestion: {prompt}"
                         ai_response = st.session_state.client.invoke(llm_prompt)
                         response = ai_response.content
                         
