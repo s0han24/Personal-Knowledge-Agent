@@ -53,7 +53,7 @@ def keyword_relevance_score(query, item):
     relevance_score = len(common_keywords) / len(query_keywords) if query_keywords else 0.0
     return relevance_score
 
-def rerank(query, retrieved_items, compute_relevance_score=keyword_relevance_score):
+def rerank(query, retrieved_items, compute_relevance_score=llm_relevance_score):
     """
     Rerank the retrieved items based on their relevance to the query using a language model.
 

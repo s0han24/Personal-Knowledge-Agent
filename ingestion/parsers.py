@@ -5,19 +5,6 @@ def clean_metadata(document):
     
     if 'type' not in document.metadata or document.metadata['type'] is None:
         document.metadata['type'] = 'text'
-    elif document.metadata['type'] == 'code':
-        # Safely check for extension
-        extension = document.metadata.get('extension', '')
-        if extension == '.py':
-            document.metadata['language'] = 'python'
-        elif extension == '.js':
-            document.metadata['language'] = 'javascript'
-        elif extension == '.html':
-            document.metadata['language'] = 'html'
-        elif extension == '.css':
-            document.metadata['language'] = 'css'
-        else:
-            document.metadata['language'] = 'Unknown'
     
     return document
 

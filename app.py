@@ -196,9 +196,6 @@ if prompt := st.chat_input("Ask me anything about your knowledge base..."):
 
         st.markdown(response, unsafe_allow_html=True)
 
-        # debugging
-        print(response)
-
         message_data = {"role": "assistant", "content": response}
         if logs:
             message_data["logs"] = logs

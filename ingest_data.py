@@ -8,6 +8,8 @@ from config import data_path, vector_store_path
 from ingestion.loaders import load_dir
 from ingestion.parsers import parse_dir
 from chunking.caller import chunk_documents
+from chunking.ai_driven import perform_ai_driven_chunking, perform_context_enriched_chunking
+from chunking.semantic import perform_semantic_chunking
 from index.faiss_index import build_index, save_index, add_docs
 
 def main():
@@ -34,7 +36,7 @@ def main():
     # 3. Chunk documents
     print("Chunking documents...")
     try:
-        chunks = chunk_documents(parsed_documents)
+        chunks = chunk_documents(parsed_documents, chunking_function=perform_semantic_chunking)
         print(f"Created {len(chunks)} chunks.")
     except Exception as e:
         print(f"Error chunking documents: {e}")

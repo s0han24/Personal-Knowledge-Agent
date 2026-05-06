@@ -24,7 +24,7 @@ def perform_fixed_size_chunking(document, chunk_size=500, chunk_overlap=50):
     # Create a list of metadata for each chunk
     metadata = []
     for i in range(len(chunks)):
-        metadata.append(document.metadata)
+        metadata.append(document.metadata.copy())
         metadata[i]['chunk_number'] = i + 1
         metadata[i]['start_index'] = i * (chunk_size - chunk_overlap)
         metadata[i]['end_index'] = metadata[i]['start_index'] + chunk_size

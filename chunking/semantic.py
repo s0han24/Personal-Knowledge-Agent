@@ -40,7 +40,6 @@ def perform_semantic_chunking(document, chunk_size=500, chunk_overlap=50):
             'php': Language.PHP,
             'rs': Language.RUST,
             'html': Language.HTML,
-            'sol': Language.SOLIDITY,
             'cs': Language.CSHARP,
             'c': Language.C,
             'scala': Language.SCALA,
@@ -56,8 +55,17 @@ def perform_semantic_chunking(document, chunk_size=500, chunk_overlap=50):
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
             
         chunks = text_splitter.split_text(content)
-        
-    return chunks
+    
+    # Wrap raw text chunks into Document objects with metadata
+    chunked_documents = []
+    for i, chunk_text in enumerate(chunks):
+        chunk_metadata = dict(document.metadata)  # copy to avoid shared-reference bugs
+        chunk_metadata['chunk_number'] = i + 1
+        chunk_metadata['start_index'] = i * (chunk_size - chunk_overlap)
+        chunk_metadata['end_index'] = chunk_metadata['start_index'] + chunk_size
+        chunked_documents.append(Document(page_content=chunk_text, metadata=chunk_metadata))
+    
+    return chunked_documents
 
 def perform_adaptive_chunking(document, chunk_size=500, chunk_overlap=50):
     """
