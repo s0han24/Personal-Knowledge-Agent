@@ -3,8 +3,10 @@ from langchain_mistralai import ChatMistralAI
 from langchain_core.documents import Document
 
 # Initialize a small Mistral model for AI-driven chunking and summarization
-mistral_ai = ChatMistralAI(model="mistral-7b-instruct-v0.1.Q4_0.gguf", temperature=0.7)
+mistral_ai = ChatMistralAI(model="mistral-large-latest")
 
+
+# Hits rate limit for Mistral, so just a proof of concept for now. We can implement a more robust solution later that handles rate limits and retries.
 def perform_ai_driven_chunking(document, chunk_size=500, chunk_overlap=50):
     """
     Chunks the document into smaller chunks using an AI-driven approach
